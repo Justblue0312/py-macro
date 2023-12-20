@@ -115,9 +115,9 @@ class SQLModelGenerator:
         self._module_imports.add(pkgname)
 
     def generate_model(self, table: Table) -> TableD:
-        default_primary_key = ColumnD(name="id", column_type="int", primary_key=True, nullable=True)
-        table_d_columns = [default_primary_key] if "id" not in (col.name for col in table.columns) else [ColumnD(name="index", column_type="int", primary_key=True, nullable=True)]
-        table_d_columns += [ColumnD(convert_column_name(col.name), convert(col.type), col.primary_key, col.nullable) for col in table.columns]
+        default_primary_key = ColumnD(name="index", column_type="int", primary_key=True, nullable=True)
+        table_d_columns = [default_primary_key] if not any([col.type for col in table.columns]) else []
+        table_d_columns += [ColumnD(convert_column_name(col.name), convert(col.type), col.primary_key, col.nullable) for col in table.columns] #type: ignore
         return TableD(name=table.name, columns=table_d_columns)
 
     def generate_sqlmodel(self, table_d: TableD) -> str:
@@ -128,7 +128,7 @@ class SQLModelGenerator:
 
         class_definition = f"class {convert_table_name(table_d.name)}(SQLModel, table=True):\n"
         class_definition += f'\t__table_name__ = "{table_d.name}"\n\n'
-        for column in table_d.columns:
+        for column in table_d.columns: #type: ignore
             if column.primary_key:
                 class_definition += f"\t{column.name}: Optional[{column.column_type}] = Field(primary_key=True)\n"
             elif column.nullable:

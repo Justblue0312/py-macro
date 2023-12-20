@@ -1,13 +1,12 @@
 from typing import Optional
 from sqlmodel import SQLModel, Field
-import decimal
 import datetime
+import decimal
 
 
 class BlockProcesses(SQLModel, table=True):
 	__table_name__ = "block_processes"
 
-	index: Optional[int] = Field(primary_key=True)
 	id: Optional[int] = Field(primary_key=True)
 	created_at: datetime.datetime
 	updated_at: datetime.datetime
@@ -19,7 +18,6 @@ class BlockProcesses(SQLModel, table=True):
 class Blocks(SQLModel, table=True):
 	__table_name__ = "blocks"
 
-	index: Optional[int] = Field(primary_key=True)
 	id: Optional[int] = Field(primary_key=True)
 	created_at: datetime.datetime
 	updated_at: datetime.datetime
@@ -29,7 +27,6 @@ class Blocks(SQLModel, table=True):
 class Foo(SQLModel, table=True):
 	__table_name__ = "foo"
 
-	index: Optional[int] = Field(primary_key=True)
 	id: Optional[int] = Field(primary_key=True)
 	created_at: datetime.datetime
 	updated_at: datetime.datetime
@@ -38,7 +35,6 @@ class Foo(SQLModel, table=True):
 class MappingReport(SQLModel, table=True):
 	__table_name__ = "mapping_report"
 
-	index: Optional[int] = Field(primary_key=True)
 	id: Optional[int] = Field(primary_key=True)
 	created_at: datetime.datetime
 	updated_at: datetime.datetime
