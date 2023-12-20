@@ -10,7 +10,7 @@ __all__ = ["marco_engine", "get_db", "init_db"]
 
 marco_engine = create_engine(
     settings.database_url,
-    echo=True,
+    echo=False,
     connect_args={"check_same_thread": False},
 )
 

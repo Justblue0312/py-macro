@@ -64,8 +64,7 @@ _CONVERT_DATA = {
 
 # fmt: off
 def convert(datatype: type) -> str:
-    return next(pytype for pytype, sqltypes in _CONVERT_DATA.items() if any(isinstance(datatype, sqltype) for sqltype in sqltypes)
-    )
+    return next(pytype for pytype, sqltypes in _CONVERT_DATA.items() if any(isinstance(datatype, sqltype) for sqltype in sqltypes))
 
 # fmt: off
 def convert_table_name(name: str) -> str:
@@ -116,7 +115,7 @@ class SQLModelGenerator:
 
     def generate_model(self, table: Table) -> TableD:
         default_primary_key = ColumnD(name="index", column_type="int", primary_key=True, nullable=True)
-        table_d_columns = [default_primary_key] if not any([col.type for col in table.columns]) else []
+        table_d_columns = [default_primary_key] if not any([col.primary_key for col in table.columns]) else []
         table_d_columns += [ColumnD(convert_column_name(col.name), convert(col.type), col.primary_key, col.nullable) for col in table.columns] #type: ignore
         return TableD(name=table.name, columns=table_d_columns)
 
@@ -140,10 +139,11 @@ class SQLModelGenerator:
 
     def generate(self):
         all_data = "\n" + "".join(self.generate_sqlmodel(self.generate_model(table)) for table in self.metadata.sorted_tables)
+        all_data += f"\nALL_TABLES = [{', '.join(self.table_names)}]"
 
         import_data = "".join(f"from {pkgname} import {', '.join(name)}\n" for pkgname, name in self._imports.items())
         import_data += "".join(f"import {name}\n" for name in self._module_imports)
-
+        
         with open(self.outfile, mode="w", encoding="utf-8") as file:
             file.write(import_data + "\n" + all_data)
 

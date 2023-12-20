@@ -10,7 +10,7 @@ BlockType = TypeVar("BlockType", bound="Block")
 _R = TypeVar("_R", Any, Dict[str, Any])
 
 
-class Block(Generic[BlockType, _R], ABC):
+class Block(Generic[_R], ABC):
     def __init__(
         self,
         data: Any,
@@ -18,14 +18,12 @@ class Block(Generic[BlockType, _R], ABC):
         title: Optional[str],
         description: Optional[str],
         prefix: str = "",
-        mode: Literal["start", "end", ""] = "",
         **kwargs,
     ) -> None:
         self.title = title if title else self.__class__.__name__
         self.description = description
         self.prefix = prefix
         self.id = self.prefix + str(uuid.uuid4()) if self.prefix else str(uuid.uuid4())
-        self.mode = mode
         self.data = data
         self.result: Optional[_R] = None
 

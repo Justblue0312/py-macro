@@ -21,6 +21,7 @@ class SQLBlock(Block, Generic[DBConfigType, DBInterfaceType]):
         db_type: Literal["mysql", "sqlite", "postgres"] = "sqlite",
         config: DBConfigType,
         db: Optional[DBInterfaceType] = None,
+        allow_process: bool = False,
         **kwargs,
     ) -> None:
         super().__init__(
@@ -32,6 +33,7 @@ class SQLBlock(Block, Generic[DBConfigType, DBInterfaceType]):
             **kwargs,
         )
         self.config = config
+        self.allow_process = allow_process
         self.db_type = db_type
         match self.db_type:
             case "sqlite":
@@ -44,9 +46,10 @@ class SQLBlock(Block, Generic[DBConfigType, DBInterfaceType]):
                 self.db = db
         if not self.db:
             raise ValueError("Can't establish database connection")
+        if self.allow_process:
+            self.preprocess()
 
     def __enter__(self):
-        self.preprocess()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -70,6 +73,7 @@ class SQLBlock(Block, Generic[DBConfigType, DBInterfaceType]):
         file_path = os.path.join(SRC_DIR, self._check_python_file(module))
         try:
             s = SQLModelGenerator(file_path, self.db.engine, self.db.metadata)  # type: ignore
+            self.generator = s
             s.generate()
         except Exception as e:
             logger.error(e)
