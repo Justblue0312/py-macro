@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from typing import Any
 
+from contrib.patterns import singleton
 from core import LOG_DIR
 
 
@@ -14,26 +15,25 @@ class BaseLogging:
         self.logger.setLevel(logging.DEBUG)
 
         self.log_file = os.path.join(LOG_DIR, self.file_name)
-
-    def _set_logger(self):
         if not os.path.exists(self.log_file):
             Path(self.log_file).touch(mode=0o644, exist_ok=True)
-            mode = "w"
+            self._mode = "w"
         else:
-            mode = "a"
-        with open(self.log_file, mode) as f:
-            pass
-        file_handler = logging.FileHandler(self.log_file)
-        file_handler.setLevel(logging.DEBUG)
+            self._mode = "a"
+        self.file_handler = logging.FileHandler(self.log_file)
+        self.file_handler.setLevel(logging.DEBUG)
 
         formatter = logging.Formatter(
             "[%(levelname)s]:[%(name)s] - (%(asctime)s; %(filename)s:%(lineno)d): %(message)s"
         )
-        file_handler.setFormatter(formatter)
+        self.file_handler.setFormatter(formatter)
 
         self.logger.handlers = []
 
-        self.logger.addHandler(file_handler)
+    def _set_logger(self):
+        with open(self.log_file, self._mode) as f:
+            pass
+        self.logger.addHandler(self.file_handler)
 
     def info(self, message: str | json.JSONEncoder | Any):
         self._set_logger()
@@ -50,3 +50,12 @@ class BaseLogging:
     def debug(self, message: str | json.JSONEncoder | Any):
         self._set_logger()
         self.logger.debug(message)
+
+
+@singleton
+class InitLogger:
+    logger = BaseLogging("database")
+
+    db_logger = logging.getLogger("sqlalchemy")
+    db_logger.addHandler(logger.file_handler)
+    db_logger.setLevel(logging.DEBUG)

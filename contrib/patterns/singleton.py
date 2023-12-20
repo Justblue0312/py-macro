@@ -1,7 +1,16 @@
-class Singleton(type):
-    _instances = {}
+from functools import wraps
 
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+
+def singleton(orig_cls):
+    orig_new = orig_cls.__new__
+    instance = None
+
+    @wraps(orig_cls.__new__)
+    def __new__(cls, *args, **kwargs):
+        nonlocal instance
+        if instance is None:
+            instance = orig_new(cls, *args, **kwargs)
+        return instance
+
+    orig_cls.__new__ = __new__
+    return orig_cls

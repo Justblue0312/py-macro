@@ -1,8 +1,9 @@
+import importlib
 from typing import Literal
 
 from sqlalchemy import URL
 
-from internal.types.databases import DatabaseConfig, DatabaseInterface
+from internal.databases.databases import DatabaseConfig, DatabaseInterface
 
 
 class PostgresSQLConfig(DatabaseConfig):
@@ -26,6 +27,14 @@ class PostgresSQLConfig(DatabaseConfig):
         self.echo = echo
         self.module = module
 
+        if self.module and self.module != "psycopg2":
+            try:
+                importlib.import_module(self.module)
+            except ImportError:
+                raise ImportError(
+                    f"Driver requires module {self.module} but not found."
+                )
+
         if not hasattr(self, "database_uri"):
             setattr(
                 self,
@@ -38,7 +47,7 @@ class PostgresSQLConfig(DatabaseConfig):
             raise ValueError("Incorrect database_uri")
 
     @property
-    def new_database_uri(self):
+    def database_url(self):
         return URL.create(
             "postgresql+psycopg2",
             self.username,

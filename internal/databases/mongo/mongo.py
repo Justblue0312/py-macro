@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 
-from internal.types.databases import DatabaseConfig, DatabaseInterface
+from internal.databases.databases import DatabaseConfig, DatabaseInterface
 
 
 class MongoConfig(DatabaseConfig):

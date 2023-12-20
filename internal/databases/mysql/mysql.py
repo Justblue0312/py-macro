@@ -1,11 +1,9 @@
+import importlib
 from typing import List, Literal, Optional
 
 from sqlalchemy import URL, text
 
-from contrib import BaseLogging
-from internal.types.databases import DatabaseConfig, DatabaseInterface
-
-logger = BaseLogging("sqlite_error")
+from internal.databases.databases import DatabaseConfig, DatabaseInterface
 
 
 class MySQLConfig(DatabaseConfig):
@@ -29,6 +27,14 @@ class MySQLConfig(DatabaseConfig):
         self.echo = echo
         self.module = module
 
+        if self.module and self.module != "pymysql":
+            try:
+                importlib.import_module(self.module)
+            except ImportError:
+                raise ImportError(
+                    f"Driver requires module {self.module} but not found."
+                )
+
         if not hasattr(self, "database_uri"):
             setattr(
                 self,
@@ -41,7 +47,7 @@ class MySQLConfig(DatabaseConfig):
             raise ValueError("Incorrect database_uri")
 
     @property
-    def new_database_uri(self):
+    def database_url(self):
         return URL.create(
             "mysql+pymysql",
             self.username,

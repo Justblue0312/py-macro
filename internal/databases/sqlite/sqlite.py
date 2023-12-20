@@ -2,10 +2,7 @@ from typing import Any, Dict, List, Optional
 
 from sqlalchemy import text
 
-from contrib import BaseLogging
-from internal.types.databases import DatabaseConfig, DatabaseInterface
-
-logger = BaseLogging("sqlite_error")
+from internal.databases.databases import DatabaseConfig, DatabaseInterface
 
 
 class SQLiteConfig(DatabaseConfig):
@@ -14,12 +11,10 @@ class SQLiteConfig(DatabaseConfig):
         database_uri: str,
         echo=False,
         connect_args: Optional[Dict[str, Any]] = None,
+        *args,
+        **kwargs
     ) -> None:
-        self.database_uri = database_uri
-        self.echo = echo
-        self.connect_args = (
-            connect_args if connect_args else {"check_same_thread": False}
-        )
+        super().__init__(database_uri, echo, connect_args, *args, **kwargs)
 
 
 class SQLite(DatabaseInterface):

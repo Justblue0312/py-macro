@@ -7,6 +7,7 @@ BASE_DIR: str = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"
 STORAGE_DIR: str = os.path.join(BASE_DIR, "storages")
 LOG_DIR: str = os.path.join(STORAGE_DIR, "logs")
 SETUP_DIR: str = os.path.join(STORAGE_DIR, "setup")
+SRC_DIR: str = os.path.join(BASE_DIR, "src")
 
 
 class Settings(BaseSettings):

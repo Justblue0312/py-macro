@@ -1,12 +1,11 @@
+import logging
 from typing import Any, Dict, Optional, Union
 
 from sqlalchemy.exc import IntegrityError, NoResultFound, OperationalError
 from sqlalchemy.orm.exc import FlushError
 from sqlmodel import SQLModel, select
 
-from contrib import BaseLogging
-
-logger = BaseLogging("model_failed_execution")
+logger = logging.getLogger(__name__)
 
 
 class ActiveRecordMixin:
